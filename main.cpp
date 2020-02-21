@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <iomanip>
 
 using namespace std;
 
@@ -19,7 +20,9 @@ public:
     course() {}
     course(string n, int s, int c, string g) { name = n; section = s; credits = c; grade = g; }
 
+
     //You might need to implement some overloaded operators here.
+    //course(const course& c) { name = c.name; section = c.section; credits = c.credits; grade = c.grade; }
     float getGPA();
     bool operator==(const course& c);
     bool operator<(const course& c);
@@ -76,35 +79,44 @@ Credits: 10
 (CSE674 1 3 B+) (MAT296 8 4 A) (WRT205 5 3 A)
 
  */
-ostream& operator<<(ostream& str, const map<int, tuple<int, float, map<int, tuple<int, float, list<course*> *> > *> *>& m){
+template <typename T>
+ostream& operator<<(ostream& str, const map<int,T*>& m) {
+//ostream& operator<<(ostream& str, const map<int, tuple<int, float, map<int, tuple<int, float, list<course*> *> > *> *>& m){
+    str << "DB: " << endl;
     for(auto i : m){
-        str << "SUID: "<< i.first << endl << &(i.second) << endl;
+        str << "ID: "<< i.first << endl << *(i.second);
     }
     return str;
 }
 
-ostream& operator<<(ostream& str, const tuple<int, float, map<int, tuple<int, float, list<course*> *> > *>& t) {
-    str << "Overall GPA: " << get<1>(t) << endl << "Overall Credits: " << get<0>(t) << endl << (get<2>(t));
+template  <class T>
+ostream& operator<<(ostream& str, const tuple<int, float, map<int,T>* >& t) {
+//ostream& operator<<(ostream& str, const tuple<int, float, map<int, tuple<int, float, list<course*> *> > *>& t) {
+    str << "Overall GPA: " << setprecision(2) << fixed << get<1>(t) << endl << "Overall Credits: " << get<0>(t) << endl << *(get<2>(t));
     return str;
 }
 
-ostream& operator<<(ostream& str, const map<int, tuple<int, float, list<course*> *> *>& m ){
+template  <class T>
+ostream& operator<<(ostream& str, const map<int,T>& m ){
     for(auto i : m){
-        str << "Semester: " << i.first << endl << i.second << endl;
+        str << "Semester: " << i.first << endl << (i.second) << endl;
     }
     return str;
 }
 
-ostream& operator<<(ostream& str, const tuple<int, float, list<course*> *>& t){
-    str << "Semester GPA: " << get<1>(t) << endl << "Semester Credits: " << get<0>(t) << endl << (get<2>(t)) << "dane";
+
+template <class T>
+ostream& operator<<(ostream& str, const tuple<int,float,T*>& t){
+    str << "GPA: " << setprecision(2) << fixed << get<1>(t) << endl << "Credits: " << get<0>(t) << endl << *(get<2>(t));
     return str;
 }
 
-ostream& operator<<(ostream& str, const list<course*>& l){
+template<class T>
+ostream& operator<<(ostream& str, const list<T>& l){
     for(auto i: l){
-        str << &i << " ";
+        str << *i << " ";
     }
-    return str << endl;
+    return str;
 }
 
 ostream& operator<<(ostream& str, const course& c){
@@ -175,7 +187,7 @@ int main() {
     print_student_all_courses(DB, 11112);
 
     cout << DB << endl;
-    //remove_student(DB, 11111);
+    remove_student(DB, 11111);
     cout << DB << endl;
     return 0;
 }
@@ -195,22 +207,28 @@ void remove_student(map<int, tuple<int, float, map<int, tuple<int, float, list<c
         return;
     }
     auto &semMap = get<2>(*DB[id]);
-    cout << semMap << endl;
     if(semMap == nullptr){
         //semester map does not exist
+        delete semMap;
         DB.erase(DB.find(id));
         return;
     }
     for(auto i : *semMap){
         auto &courseList = get<2>(i.second);
-        for(auto j : *courseList){
+        for(course* j : *courseList){
             delete j;
         }
-        delete semMap;
+        courseList->clear();
+        semMap->erase(i.first);
+        if(semMap->empty())
+            break;
     }
-    remove_student(DB,id);
+    delete semMap;
+    DB.erase(DB.find(id));
 }
 
+//have to delete one by one
+//find if
 
 void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int semester, int id, course c) {
     if (DB.find(id) == DB.end()){
@@ -219,50 +237,60 @@ void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cours
         return;
     }
     auto &semMap = get<2>(*DB[id]);
-    cout << semMap << endl;
+    //cout << semMap << endl;
     if(semMap == nullptr){
         //semester map not created, create it
-        cout << "creating semester map for " << id << endl;
+        //cout << "creating semester map for " << id << endl;
         semMap = new map<int, tuple<int, float, list<course*>* > >;
     }
     if (semMap->find(semester) == semMap->end()) {
         //semester does not exist, add it
-        cout << "adding " << semester << " to " << id << endl;
+        //cout << "adding " << semester << " to " << id << endl;
         tuple<int, float, list<course*>* > semTup;
         semMap->emplace(semester, semTup);
     }
 
     auto &sem = (*get<2>(*DB[id]))[semester];
-    cout << sem << endl;
+    //cout << sem << endl;
     auto &courses = get<2>(sem);
-    cout << courses << endl;
+    //cout << courses << endl;
     if(courses == nullptr){
         //no course list, create one
-        cout << "creating course list for ID: " << id << " Semester: " << semester << endl;
+        //cout << "creating course list for ID: " << id << " Semester: " << semester << endl;
         courses = new list<course*>;
-        courses->push_front(&c);
+        courses->push_front(new course(c));
     }
     else {
+        //check if course already in semMap
+        for(auto x : *semMap){
+            auto &cl = get<2>(x.second);
+            for(auto y : *cl){
+                if(y->name == c.name){
+                    //course already exists
+                    return;
+                }
+            }
+        }
         //add course to course list
         auto it1 = courses->begin();
         auto it2 = courses->begin();
         it2++;
         while (true) {
-            if ((*it1)->name == c.name){
-                //course already exists
-                return;
+            if(it1 == courses->begin() && (*it1)->name.compare(c.name) > 0){
+                courses->push_front(new course(c));
+                break;
             }
             else if (it2 == courses->end()) {
-                if((*it1)->name > c.name)
-                    courses->push_back(&c);
+                if((*it1)->name.compare(c.name) < 0)
+                    courses->push_back(new course(c));
                 else {
-                    it1--;
-                    courses->insert(it1, &c);
+
+                    courses->insert(it1, new course(c));
                 }
                 break;
-            } else if (((*it1)->name < c.name && (*it2)->name > c.name)) {
-                cout << " adding course " << c << " for ID: " << id << " Semester: " << semester << endl;
-                courses->insert(++it1, &c);
+            } else if ((*it1)->name.compare(c.name) < 0 && (*it2)->name.compare(c.name) > 0) {
+                //cout << " adding course " << c << " for ID: " << id << " Semester: " << semester << endl;
+                courses->insert(++it1, new course(c));
                 break;
             }
             it1++;
@@ -291,7 +319,7 @@ void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cour
         return;
     }
     auto &semMap = get<2>(*DB[id]);
-    cout << semMap << endl;
+    //cout << semMap << endl;
     if(semMap == nullptr){
         //semester map does not exist
         return;
@@ -302,9 +330,9 @@ void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cour
     }
 
     auto &sem = (*get<2>(*DB[id]))[semester];
-    cout << sem << endl;
+    //cout << sem << endl;
     auto &courses = get<2>(sem);
-    cout << courses << endl;
+    //cout << courses << endl;
     if(courses == nullptr){
         //no course list
         return;
@@ -355,8 +383,10 @@ void print_student_semester_courses(map<int, tuple<int, float, map<int, tuple<in
         //semester does not exist
         return;
     }
-    auto &sem = (*get<2>(*DB[id]))[semester];
-    cout << sem << endl;
+    auto &sem = (*semMap)[semester];
+    cout << "ID: " << id << endl;
+    cout << "Semester: " << semester << endl;
+    cout << sem << endl << endl;
 
 }
 void print_student_all_courses(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id) {
@@ -365,10 +395,15 @@ void print_student_all_courses(map<int, tuple<int, float, map<int, tuple<int, fl
         cout << "student to print does not exist" << endl;
         return;
     }
+    auto &overCreds = get<0>(*DB[id]);
+    auto &overGPA = get<1>(*DB[id]);
     auto &semMap = get<2>(*DB[id]);
     if(semMap == nullptr){
         //semester map does not exists
         return;
     }
-    cout << semMap << endl;
+    cout << "ID: " << id << endl;
+    cout << "Overall GPA: " << overGPA << endl;
+    cout << "Overall Credits: " << overCreds << endl;
+    cout << *semMap << endl;
 }
