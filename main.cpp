@@ -137,7 +137,6 @@ int main() {
 
     add_student(DB, 11111);
     course C1("CIS554", 1, 3, "A-"), C2("CSE674", 1, 3, "B+"), C3("MAT296", 8, 4, "A"), C4("WRT205", 5, 3, "A");
-    drop_course(DB, 20171, 11111, C1);
     add_course(DB, 20171, 11111, C1);
     add_course(DB, 20171, 11111, C4);
     add_course(DB, 20171, 11111, C3);
@@ -235,6 +234,17 @@ void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cours
     if (courses == nullptr) {
         //no course list, create one
         courses = new list<course*>;
+        for (auto x : *semMap) {
+            auto& cl = get<2>(x.second);
+            for (auto y : *cl) {
+                if (y->name == c.name) {
+                    //course already exists
+                    delete courses;
+                    courses = nullptr;
+                    return;
+                }
+            }
+        }
         courses->push_front(new course(c));
     }
     else {
@@ -317,6 +327,7 @@ void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cour
         while (true) {
             if ((*it1)->name == c.name) {
                 courses->erase(it1);
+                delete *it1;
                 break;
             }
             else if (it2 == courses->end()) {
