@@ -22,7 +22,7 @@ public:
 
 
     //You might need to implement some overloaded operators here.
-    //course(const course& c) { name = c.name; section = c.section; credits = c.credits; grade = c.grade; }
+
     float getGPA();
     bool operator==(const course& c);
     bool operator<(const course& c);
@@ -31,28 +31,28 @@ public:
 
 };
 
-float course::getGPA(){
-    if(grade == "A")
+float course::getGPA() {
+    if (grade == "A")
         return 4.0;
-    else if(grade == "A-")
+    else if (grade == "A-")
         return 3.6666;
-    else if(grade == "B+")
+    else if (grade == "B+")
         return 3.3333;
-    else if(grade == "B")
+    else if (grade == "B")
         return 3.0;
-    else if(grade == "B-")
+    else if (grade == "B-")
         return 2.6666;
-    else if(grade == "C+")
+    else if (grade == "C+")
         return 2.3333;
-    else if(grade == "C")
+    else if (grade == "C")
         return 2.0;
-    else if(grade == "C-")
+    else if (grade == "C-")
         return 1.6666;
-    else if(grade == "D")
+    else if (grade == "D")
         return 1.0;
-    else if(grade == "D-")
+    else if (grade == "D-")
         return 0.666;
-    else if(grade == "F")
+    else if (grade == "F")
         return 0.0;
     return 0;
 }
@@ -65,40 +65,24 @@ bool course::operator<(const course& c) {
     return name < c.name;
 }
 
-/*
-ID: 11111
-Semester: 20171
-GPA: x.xx
-Credits: 13
-(CIS554 1 3 A-) (CSE674 1 3 B+) (MAT296 8 4 A) (WRT205 5 3 A)
-
-ID: 11111
-Semester: 20171
-GPA: x.xx
-Credits: 10
-(CSE674 1 3 B+) (MAT296 8 4 A) (WRT205 5 3 A)
-
- */
-template <typename T>
-ostream& operator<<(ostream& str, const map<int,T*>& m) {
-//ostream& operator<<(ostream& str, const map<int, tuple<int, float, map<int, tuple<int, float, list<course*> *> > *> *>& m){
+template <class T>
+ostream& operator<<(ostream& str, const map<int, T*>& m) {
     str << "DB: " << endl;
-    for(auto i : m){
-        str << "ID: "<< i.first << endl << *(i.second);
+    for (auto i : m) {
+        str << "ID: " << i.first << endl << *(i.second);
     }
     return str;
 }
 
 template  <class T>
-ostream& operator<<(ostream& str, const tuple<int, float, map<int,T>* >& t) {
-//ostream& operator<<(ostream& str, const tuple<int, float, map<int, tuple<int, float, list<course*> *> > *>& t) {
+ostream& operator<<(ostream& str, const tuple<int, float, map<int, T>* >& t) {
     str << "Overall GPA: " << setprecision(2) << fixed << get<1>(t) << endl << "Overall Credits: " << get<0>(t) << endl << *(get<2>(t));
     return str;
 }
 
 template  <class T>
-ostream& operator<<(ostream& str, const map<int,T>& m ){
-    for(auto i : m){
+ostream& operator<<(ostream& str, const map<int, T>& m) {
+    for (auto i : m) {
         str << "Semester: " << i.first << endl << (i.second) << endl;
     }
     return str;
@@ -106,21 +90,21 @@ ostream& operator<<(ostream& str, const map<int,T>& m ){
 
 
 template <class T>
-ostream& operator<<(ostream& str, const tuple<int,float,T*>& t){
+ostream& operator<<(ostream& str, const tuple<int, float, T*>& t) {
     str << "GPA: " << setprecision(2) << fixed << get<1>(t) << endl << "Credits: " << get<0>(t) << endl << *(get<2>(t));
     return str;
 }
 
 template<class T>
-ostream& operator<<(ostream& str, const list<T>& l){
-    for(auto i: l){
+ostream& operator<<(ostream& str, const list<T>& l) {
+    for (auto i : l) {
         str << *i << " ";
     }
     return str;
 }
 
-ostream& operator<<(ostream& str, const course& c){
-    str << "("<< c.name << " " << c.section << " " << c.credits << " " << c.grade << ")";
+ostream& operator<<(ostream& str, const course& c) {
+    str << "(" << c.name << " " << c.section << " " << c.credits << " " << c.grade << ")";
     return str;
 }
 
@@ -135,7 +119,7 @@ ostream& operator<<(ostream& str, const course& c){
 
 //Semeser numbers:  Spring 2019: 20191; Fall 2019: 20192, etc.
 
-void add_student(map<int, tuple<int, float, map<int, tuple<int, float, list<course*> *> > *> *>& DB, int id);
+void add_student(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id);
 void remove_student(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id);
 void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int semester, int id, course c); //20171 Spring semester of 2017; 20172: Fall semester of 2017
 //All courses in the list should be sorted according to name (increasing order)
@@ -153,7 +137,7 @@ int main() {
 
     add_student(DB, 11111);
     course C1("CIS554", 1, 3, "A-"), C2("CSE674", 1, 3, "B+"), C3("MAT296", 8, 4, "A"), C4("WRT205", 5, 3, "A");
-
+    drop_course(DB, 20171, 11111, C1);
     add_course(DB, 20171, 11111, C1);
     add_course(DB, 20171, 11111, C4);
     add_course(DB, 20171, 11111, C3);
@@ -193,35 +177,33 @@ int main() {
 }
 
 void add_student(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id) {
-    if (DB.find(id) != DB.end()){
+    if (DB.find(id) != DB.end()) {
         //student already in DB
-        cout << "student already in DB" << endl;
         return;
     }
-    DB[id] = new tuple<int, float, map<int, tuple<int, float, list<course*> *> > *>;
+    DB[id] = new tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>;
 }
 void remove_student(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id) {
-    if (DB.find(id) == DB.end()){
+    if (DB.find(id) == DB.end()) {
         //student to remove does not exist
-        cout << "student to remove does not exist" << endl;
         return;
     }
-    auto &semMap = get<2>(*DB[id]);
-    if(semMap == nullptr){
+    auto& semMap = get<2>(*DB[id]);
+    if (semMap == nullptr) {
         //semester map does not exist
         delete semMap;
         DB.erase(DB.find(id));
         return;
     }
-    for(auto i : *semMap){
-        auto &courseList = get<2>(i.second);
-        for(course* j : *courseList){
+    for (auto i : *semMap) {
+        auto& courseList = get<2>(i.second);
+        for (course* j : *courseList) {
             delete j;
         }
         courseList->clear();
-        semMap->erase(i.first);
-        if(semMap->empty())
+        if (semMap->empty())
             break;
+        delete courseList;
     }
     delete semMap;
     DB.erase(DB.find(id));
@@ -231,41 +213,36 @@ void remove_student(map<int, tuple<int, float, map<int, tuple<int, float, list<c
 //find if
 
 void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int semester, int id, course c) {
-    if (DB.find(id) == DB.end()){
+    if (DB.find(id) == DB.end()) {
         //student to add course to does not exist
-        cout << "student to add course to does not exist" << endl;
         return;
     }
-    auto &semMap = get<2>(*DB[id]);
-    //cout << semMap << endl;
-    if(semMap == nullptr){
+    auto& semMap = get<2>(*DB[id]);
+
+    if (semMap == nullptr) {
         //semester map not created, create it
-        //cout << "creating semester map for " << id << endl;
         semMap = new map<int, tuple<int, float, list<course*>* > >;
     }
     if (semMap->find(semester) == semMap->end()) {
         //semester does not exist, add it
-        //cout << "adding " << semester << " to " << id << endl;
         tuple<int, float, list<course*>* > semTup;
         semMap->emplace(semester, semTup);
     }
 
-    auto &sem = (*get<2>(*DB[id]))[semester];
-    //cout << sem << endl;
-    auto &courses = get<2>(sem);
-    //cout << courses << endl;
-    if(courses == nullptr){
+    auto& sem = (*get<2>(*DB[id]))[semester];
+    auto& courses = get<2>(sem);
+
+    if (courses == nullptr) {
         //no course list, create one
-        //cout << "creating course list for ID: " << id << " Semester: " << semester << endl;
         courses = new list<course*>;
         courses->push_front(new course(c));
     }
     else {
         //check if course already in semMap
-        for(auto x : *semMap){
-            auto &cl = get<2>(x.second);
-            for(auto y : *cl){
-                if(y->name == c.name){
+        for (auto x : *semMap) {
+            auto& cl = get<2>(x.second);
+            for (auto y : *cl) {
+                if (y->name == c.name) {
                     //course already exists
                     return;
                 }
@@ -276,20 +253,19 @@ void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cours
         auto it2 = courses->begin();
         it2++;
         while (true) {
-            if(it1 == courses->begin() && (*it1)->name.compare(c.name) > 0){
+            if (it1 == courses->begin() && (*it1)->name.compare(c.name) > 0) {
                 courses->push_front(new course(c));
                 break;
             }
             else if (it2 == courses->end()) {
-                if((*it1)->name.compare(c.name) < 0)
+                if ((*it1)->name.compare(c.name) < 0)
                     courses->push_back(new course(c));
                 else {
-
                     courses->insert(it1, new course(c));
                 }
                 break;
-            } else if ((*it1)->name.compare(c.name) < 0 && (*it2)->name.compare(c.name) > 0) {
-                //cout << " adding course " << c << " for ID: " << id << " Semester: " << semester << endl;
+            }
+            else if ((*it1)->name.compare(c.name) < 0 && (*it2)->name.compare(c.name) > 0) {
                 courses->insert(++it1, new course(c));
                 break;
             }
@@ -298,29 +274,27 @@ void add_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cours
         }
 
     }
-    int &semCreds = get<0>(sem);
-    float &semGPA = get<1>(sem);
-    int &overCreds = get<0>(*DB[id]);
-    float &overGPA = get<1>(*DB[id]);
-    float semUnscaledGPA = semGPA*(float)semCreds;
-    float overUnscaledGPA = overGPA*(float)overCreds;
-    semUnscaledGPA += c.getGPA()*c.credits;
+    int& semCreds = get<0>(sem);
+    float& semGPA = get<1>(sem);
+    int& overCreds = get<0>(*DB[id]);
+    float& overGPA = get<1>(*DB[id]);
+    float semUnscaledGPA = semGPA * (float)semCreds;
+    float overUnscaledGPA = overGPA * (float)overCreds;
+    semUnscaledGPA += c.getGPA() * c.credits;
     semCreds += c.credits;
-    semGPA = semUnscaledGPA/(float)semCreds;
-    overUnscaledGPA += c.getGPA()*c.credits;
+    semGPA = semUnscaledGPA / (float)semCreds;
+    overUnscaledGPA += c.getGPA() * c.credits;
     overCreds += c.credits;
-    overGPA = overUnscaledGPA/(float)overCreds;
+    overGPA = overUnscaledGPA / (float)overCreds;
 }
 
 void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int semester, int id, course c) {
-    if (DB.find(id) == DB.end()){
+    if (DB.find(id) == DB.end()) {
         //student to drop course does not exist
-        cout << "student to drop course does not exist" << endl;
         return;
     }
-    auto &semMap = get<2>(*DB[id]);
-    //cout << semMap << endl;
-    if(semMap == nullptr){
+    auto& semMap = get<2>(*DB[id]);
+    if (semMap == nullptr) {
         //semester map does not exist
         return;
     }
@@ -329,11 +303,10 @@ void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cour
         return;
     }
 
-    auto &sem = (*get<2>(*DB[id]))[semester];
-    //cout << sem << endl;
-    auto &courses = get<2>(sem);
-    //cout << courses << endl;
-    if(courses == nullptr){
+    auto& sem = (*get<2>(*DB[id]))[semester];
+    auto& courses = get<2>(sem);
+
+    if (courses == nullptr) {
         //no course list
         return;
     }
@@ -354,28 +327,27 @@ void drop_course(map<int, tuple<int, float, map<int, tuple<int, float, list<cour
             it2++;
         }
     }
-    int &semCreds = get<0>(sem);
-    float &semGPA = get<1>(sem);
-    int &overCreds = get<0>(*DB[id]);
-    float &overGPA = get<1>(*DB[id]);
-    float semUnscaledGPA = semGPA*(float)semCreds;
-    float overUnscaledGPA = overGPA*(float)overCreds;
-    semUnscaledGPA -= c.getGPA()*c.credits;
+    int& semCreds = get<0>(sem);
+    float& semGPA = get<1>(sem);
+    int& overCreds = get<0>(*DB[id]);
+    float& overGPA = get<1>(*DB[id]);
+    float semUnscaledGPA = semGPA * (float)semCreds;
+    float overUnscaledGPA = overGPA * (float)overCreds;
+    semUnscaledGPA -= c.getGPA() * c.credits;
     semCreds -= c.credits;
-    semGPA = semUnscaledGPA/(float)semCreds;
-    overUnscaledGPA -= c.getGPA()*c.credits;
+    semGPA = semUnscaledGPA / (float)semCreds;
+    overUnscaledGPA -= c.getGPA() * c.credits;
     overCreds -= c.credits;
-    overGPA = overUnscaledGPA/(float)overCreds;
+    overGPA = overUnscaledGPA / (float)overCreds;
 }
 
 void print_student_semester_courses(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int semester, int id) {
-    if (DB.find(id) == DB.end()){
+    if (DB.find(id) == DB.end()) {
         //student to print does not exist
-        cout << "student to print does not exist" << endl;
         return;
     }
-    auto &semMap = get<2>(*DB[id]);
-    if(semMap == nullptr){
+    auto& semMap = get<2>(*DB[id]);
+    if (semMap == nullptr) {
         //semester map does not exists
         return;
     }
@@ -383,22 +355,21 @@ void print_student_semester_courses(map<int, tuple<int, float, map<int, tuple<in
         //semester does not exist
         return;
     }
-    auto &sem = (*semMap)[semester];
+    auto& sem = (*semMap)[semester];
     cout << "ID: " << id << endl;
     cout << "Semester: " << semester << endl;
     cout << sem << endl << endl;
 
 }
 void print_student_all_courses(map<int, tuple<int, float, map<int, tuple<int, float, list<course*>*> >*>*>& DB, int id) {
-    if (DB.find(id) == DB.end()){
+    if (DB.find(id) == DB.end()) {
         //student to print does not exist
-        cout << "student to print does not exist" << endl;
         return;
     }
-    auto &overCreds = get<0>(*DB[id]);
-    auto &overGPA = get<1>(*DB[id]);
-    auto &semMap = get<2>(*DB[id]);
-    if(semMap == nullptr){
+    auto& overCreds = get<0>(*DB[id]);
+    auto& overGPA = get<1>(*DB[id]);
+    auto& semMap = get<2>(*DB[id]);
+    if (semMap == nullptr) {
         //semester map does not exists
         return;
     }
